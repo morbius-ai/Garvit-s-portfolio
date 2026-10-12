@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NeuroPulse AI Studio | Generative AI Web Platform</title>
+  <meta name="description" content="An intelligent Generative AI web workbench by Garvit Singh Rana featuring multi-model prompting, code generation, and student automation tools." />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='25' fill='%2306b6d4'/><text x='50%' y='55%' dominant-baseline='central' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='900' font-size='50'>AI</text></svg>" />
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --font-heading: 'Outfit', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      --bg-base: #090d16;
+      --bg-surface: #0f172a;
+      --bg-surface-elevated: #162036;
+      --bg-card: rgba(18, 26, 45, 0.78);
+      --bg-card-hover: rgba(26, 37, 63, 0.9);
+      --bg-input: rgba(15, 23, 42, 0.85);
+
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --text-faint: #64748b;
+
+      --accent-cyan: #06b6d4;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-pink: #ec4899;
+
+      --border-subtle: rgba(148, 163, 184, 0.12);
+      --border-glow: rgba(6, 182, 212, 0.35);
+
+      --gradient-ai: linear-gradient(135deg, #06b6d4 0%, #6366f1 50%, #ec4899 100%);
+      --gradient-card: radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.12) 0%, transparent 75%);
+
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
+
+      --shadow-soft: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+      --shadow-glow: 0 0 30px -5px rgba(6, 182, 212, 0.25);
+    }
+
+    [data-theme="light"] {
+      --bg-base: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-surface-elevated: #f1f5f9;
+      --bg-card: rgba(255, 255, 255, 0.9);
+      --bg-card-hover: #ffffff;
+      --bg-input: #ffffff;
+
+      --text-primary: #0f172a;
+      --text-secondary: #334155;
+      --text-muted: #64748b;
+      --text-faint: #94a3b8;
+
+      --border-subtle: rgba(15, 23, 42, 0.08);
+      --border-glow: rgba(6, 182, 212, 0.3);
+      --shadow-soft: 0 10px 30px -10px rgba(15, 23, 42, 0.08);
+      --shadow-glow: 0 0 25px -5px rgba(6, 182, 212, 0.15);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* Ambient Background Glows */
+    .ambient-glow {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.5;
+    }
+    .glow-1 { top: -100px; left: -100px; width: 450px; height: 450px; background: rgba(6, 182, 212, 0.18); }
+    .glow-2 { bottom: -100px; right: -100px; width: 500px; height: 500px; background: rgba(99, 102, 241, 0.15); }
+
+    /* Top Navbar */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.85rem 1.75rem;
+    }
+    [data-theme="light"] .app-header {
+      background: rgba(255, 255, 255, 0.85);
+    }
+
+    .nav-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--gradient-ai);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      box-shadow: 0 4px 15px rgba(6, 182, 212, 0.35);
+    }
+    .brand-title {
+      font-family: var(--font-heading);
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+    .brand-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.2rem 0.5rem;
+      border-radius: var(--radius-full);
+      background: rgba(6, 182, 212, 0.15);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+    }
+
+    .nav-center {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .model-selector {
+      display: flex;
+      align-items: center;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      padding: 0.35rem 0.85rem;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .model-selector select {
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      outline: none;
+    }
+    .model-selector select option {
+      background: var(--bg-surface);
+      color: var(--text-primary);
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent-emerald);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent-emerald);
+      animation: pulse-dot 2s infinite ease-in-out;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      border: none;
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+    }
+    .btn-outline:hover {
+      background: var(--bg-surface-elevated);
+      border-color: var(--border-glow);
+    }
+    .btn-primary {
+      background: var(--gradient-ai);
+      color: #ffffff;
+      box-shadow: 0 4px 15px rgba(6, 182, 212, 0.35);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(6, 182, 212, 0.5);
+    }
+    .btn-icon {
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border-radius: var(--radius-full);
+      background: var(--bg-surface-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+    }
+    .btn-icon:hover {
+      border-color: var(--border-glow);
+    }
+
+    /* Main Grid Layout */
+    .workspace {
+      flex: 1;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem 1.75rem;
+      display: grid;
+      grid-template-columns: 310px 1fr;
+      gap: 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Left Sidebar */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.35rem;
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--gradient-ai);
+      opacity: 0.6;
+    }
+
+    .card-title {
+      font-family: var(--font-heading);
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Template Chips */
+    .template-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .template-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 0.85rem;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+    .template-item:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-glow);
+      color: var(--text-primary);
+      transform: translateX(4px);
+    }
+    .template-icon {
+      font-size: 1.15rem;
+    }
+
+    /* Sliders & Controls */
+    .control-group {
+      margin-bottom: 1.1rem;
+    }
+    .control-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      color: var(--text-secondary);
+    }
+    .control-val {
+      font-family: var(--font-mono);
+      color: var(--accent-cyan);
+    }
+    .range-input {
+      width: 100%;
+      accent-color: var(--accent-cyan);
+      cursor: pointer;
+    }
+
+    .tone-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.45rem;
+    }
+    .tone-btn {
+      padding: 0.45rem 0.5rem;
+      font-size: 0.76rem;
+      font-weight: 600;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tone-btn.active, .tone-btn:hover {
+      background: rgba(6, 182, 212, 0.15);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+
+    /* Main Console */
+    .console-pane {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* Output Stream Section */
+    .output-card {
+      flex: 1;
+      min-height: 400px;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+    }
+
+    .output-header {
+      padding: 0.85rem 1.35rem;
+      background: var(--bg-surface-elevated);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .output-tab-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .output-tab {
+      padding: 0.35rem 0.85rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .output-tab.active {
+      background: var(--bg-card);
+      color: var(--accent-cyan);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .output-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+    }
+
+    .output-content {
+      padding: 1.5rem;
+      flex: 1;
+      overflow-y: auto;
+      max-height: 520px;
+      font-size: 0.94rem;
+      line-height: 1.7;
+    }
+
+    .prompt-bubble {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1.15rem;
+      margin-bottom: 1.25rem;
+      font-size: 0.88rem;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+    }
+    .prompt-user-badge {
+      background: var(--accent-indigo);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.72rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .ai-response {
+      display: flex;
+      gap: 1rem;
+    }
+    .ai-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-md);
+      background: var(--gradient-ai);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      flex-shrink: 0;
+      margin-top: 0.2rem;
+    }
+    .ai-text-body {
+      flex: 1;
+      color: var(--text-primary);
+    }
+
+    .code-block {
+      background: #060a12;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      margin: 1rem 0;
+      overflow: hidden;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+    }
+    .code-header {
+      background: #0f172a;
+      padding: 0.45rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .code-header button {
+      background: transparent;
+      border: none;
+      color: #06b6d4;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-family: inherit;
+    }
+    .code-content {
+      padding: 1rem;
+      overflow-x: auto;
+      color: #e2e8f0;
+      line-height: 1.5;
+    }
+
+    .syntax-kw { color: #ec4899; }
+    .syntax-fn { color: #38bdf8; }
+    .syntax-str { color: #a3e635; }
+    .syntax-comment { color: #64748b; font-style: italic; }
+
+    /* Input Workbench */
+    .input-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1rem;
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .input-card:focus-within {
+      border-color: var(--border-glow);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .prompt-textarea {
+      width: 100%;
+      height: 80px;
+      background: transparent;
+      border: none;
+      outline: none;
+      resize: none;
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+    .prompt-textarea::placeholder {
+      color: var(--text-faint);
+    }
+
+    .input-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 0.65rem;
+    }
+    .input-hints {
+      font-size: 0.75rem;
+      color: var(--text-faint);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .input-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    /* Footer */
+    .app-footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 1rem 1.75rem;
+      font-size: 0.8rem;
+      color: var(--text-faint);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Responsive */
+    @media (max-width: 960px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+      .nav-center {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="nav-container">
+      <a href="./index.html" class="brand" title="Garvit Singh Rana Portfolio">
+        <div class="brand-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </div>
+        <div>
+          <span class="brand-title">NeuroPulse AI</span>
+          <span class="brand-badge">Studio v2.4</span>
+        </div>
+      </a>
+
+      <div class="nav-center">
+        <div class="model-selector">
+          <span>Model:</span>
+          <select id="model-select">
+            <option value="gpt-4o">GPT-4o Omnimodal (High Reasoning)</option>
+            <option value="claude-3-5" selected>Claude 3.5 Sonnet (Engineering)</option>
+            <option value="gemini-1-5">Gemini 1.5 Pro (Multimodal 2M)</option>
+            <option value="deepseek-r1">DeepSeek R1 (Math & Code)</option>
+          </select>
+        </div>
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span id="engine-status">Engine Connected (22ms)</span>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <button id="theme-btn" class="btn btn-icon" title="Toggle Dark/Light">
+          🌓
+        </button>
+        <a href="./index.html#projects" class="btn btn-outline">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          <span>Back to Portfolio</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Workspace Grid -->
+  <main class="workspace">
+    <!-- Left Sidebar: Templates & Parameters -->
+    <aside class="sidebar">
+      <!-- Templates Card -->
+      <div class="card">
+        <h2 class="card-title">
+          <span>⚡</span> Quick Prompt Presets
+        </h2>
+        <div class="template-list">
+          <button class="template-item" data-prompt="Explain the time complexity of QuickSort vs MergeSort in Python, and provide optimized boilerplate code with comments.">
+            <span class="template-icon">🐍</span>
+            <div>
+              <strong>DSA Algorithm Explainer</strong>
+              <div style="font-size:0.72rem; color:var(--text-faint)">Python code & Big-O breakdown</div>
+            </div>
+          </button>
+
+          <button class="template-item" data-prompt="Synthesize a high-yield study sheet for B.Tech semester exams on Operating System Process Scheduling Algorithms (FCFS, SJF, Round Robin).">
+            <span class="template-icon">📚</span>
+            <div>
+              <strong>Semester Exam Cheat Sheet</strong>
+              <div style="font-size:0.72rem; color:var(--text-faint)">OS Scheduling & Key Formulas</div>
+            </div>
+          </button>
+
+          <button class="template-item" data-prompt="Review and optimize this resume bullet point using Google XYZ formula: 'Built an AI website that analyzes student notes using Python and modern web APIs.'">
+            <span class="template-icon">💼</span>
+            <div>
+              <strong>Resume Impact Enhancer</strong>
+              <div style="font-size:0.72rem; color:var(--text-faint)">XYZ formula quantification</div>
+            </div>
+          </button>
+
+          <button class="template-item" data-prompt="Create a production-ready asynchronous JavaScript fetch function with retry logic, timeout handling, and JSON validation.">
+            <span class="template-icon">⚡</span>
+            <div>
+              <strong>Async Web API Wrapper</strong>
+              <div style="font-size:0.72rem; color:var(--text-faint)">Resilient vanilla JavaScript</div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Parameters Card -->
+      <div class="card">
+        <h2 class="card-title">
+          <span>🎛️</span> Model Hyperparameters
+        </h2>
+
+        <div class="control-group">
+          <div class="control-header">
+            <span>Creativity / Temp</span>
+            <span class="control-val" id="temp-val">0.7</span>
+          </div>
+          <input type="range" class="range-input" id="temp-slider" min="0" max="1" step="0.1" value="0.7" />
+        </div>
+
+        <div class="control-group">
+          <div class="control-header">
+            <span>Max Output Tokens</span>
+            <span class="control-val" id="tokens-val">1024</span>
+          </div>
+          <input type="range" class="range-input" id="tokens-slider" min="256" max="2048" step="128" value="1024" />
+        </div>
+
+        <div class="control-group">
+          <div class="control-header" style="margin-bottom:0.5rem">
+            <span>System Tone Persona</span>
+          </div>
+          <div class="tone-selector">
+            <button class="tone-btn active" data-tone="technical">Technical</button>
+            <button class="tone-btn" data-tone="academic">Academic</button>
+            <button class="tone-btn" data-tone="concise">Concise</button>
+            <button class="tone-btn" data-tone="creative">Creative</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Console -->
+    <section class="console-pane">
+      <!-- Output Card -->
+      <div class="output-card">
+        <div class="output-header">
+          <div class="output-tab-group">
+            <button class="output-tab active" id="tab-canvas">Live Output Canvas</button>
+            <button class="output-tab" id="tab-raw">Raw Markdown</button>
+          </div>
+          <div class="output-meta">
+            <span id="token-stat">⚡ 684 Tokens</span>
+            <span>•</span>
+            <span id="latency-stat">⏱️ 0.74s</span>
+            <button id="copy-output-btn" class="btn btn-outline" style="padding:0.25rem 0.6rem; font-size:0.75rem;">
+              Copy Response
+            </button>
+          </div>
+        </div>
+
+        <div class="output-content" id="output-stream">
+          <!-- Active Prompt Display -->
+          <div class="prompt-bubble">
+            <span class="prompt-user-badge">PROMPT</span>
+            <span id="active-prompt-text">Explain the time complexity of QuickSort vs MergeSort in Python, and provide optimized boilerplate code with comments.</span>
+          </div>
+
+          <!-- AI Response -->
+          <div class="ai-response">
+            <div class="ai-avatar">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            </div>
+            <div class="ai-text-body" id="response-body">
+              <p>Here is an in-depth breakdown of <strong>QuickSort</strong> vs <strong>MergeSort</strong> along with production-grade Python implementations:</p>
+              
+              <div class="code-block">
+                <div class="code-header">
+                  <span>python • quicksort_vs_mergesort.py</span>
+                  <button onclick="navigator.clipboard.writeText('# Code copied!')">Copy Code</button>
+                </div>
+                <div class="code-content"><span class="syntax-comment"># Optimized 3-way Partitioned QuickSort in Python</span>
+<span class="syntax-kw">def</span> <span class="syntax-fn">quicksort</span>(arr):
+    <span class="syntax-kw">if</span> len(arr) &lt;= <span class="syntax-str">1</span>:
+        <span class="syntax-kw">return</span> arr
+    pivot = arr[len(arr) // <span class="syntax-str">2</span>]
+    left = [x <span class="syntax-kw">for</span> x <span class="syntax-kw">in</span> arr <span class="syntax-kw">if</span> x &lt; pivot]
+    middle = [x <span class="syntax-kw">for</span> x <span class="syntax-kw">in</span> arr <span class="syntax-kw">if</span> x == pivot]
+    right = [x <span class="syntax-kw">for</span> x <span class="syntax-kw">in</span> arr <span class="syntax-kw">if</span> x &gt; pivot]
+    <span class="syntax-kw">return</span> quicksort(left) + middle + quicksort(right)
+
+<span class="syntax-comment"># Complexity Analysis:</span>
+<span class="syntax-comment"># QuickSort: Average O(N log N) time | O(log N) space | In-place cache locality</span>
+<span class="syntax-comment"># MergeSort: Guaranteed O(N log N) time | O(N) auxiliary memory | Stable sorting</span></div>
+              </div>
+
+              <p><strong>Key Engineering Trade-offs:</strong></p>
+              <ul style="margin-left: 1.25rem; margin-top: 0.5rem;">
+                <li><strong>Memory Footprint:</strong> QuickSort operates with O(log N) call-stack overhead, making it preferred for in-memory systems.</li>
+                <li><strong>Stability:</strong> MergeSort preserves the original relative order of equal elements, crucial for multi-column databases.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Prompt Input Console -->
+      <div class="input-card">
+        <textarea id="prompt-input" class="prompt-textarea" placeholder="Ask NeuroPulse AI anything: write algorithms, analyze course syllabi, generate web templates..."></textarea>
+        
+        <div class="input-toolbar">
+          <div class="input-hints">
+            <span>💡 Press <kbd style="background:var(--bg-surface-elevated); padding:0.15rem 0.35rem; border-radius:4px; font-family:var(--font-mono)">Ctrl + Enter</kbd> to run</span>
+            <span id="char-counter">0 chars</span>
+          </div>
+
+          <div class="input-actions">
+            <button id="clear-btn" class="btn btn-outline" style="font-size:0.8rem; padding:0.4rem 0.75rem;">Clear</button>
+            <button id="run-btn" class="btn btn-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              <span>Run Generation</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <span>Developed by <strong>Garvit Singh Rana</strong> • B.Tech Student at JECRC University</span>
+    <span>Powered by Vanilla JavaScript & Modern CSS3 • Deployable to Vercel</span>
+  </footer>
+
+  <script>
+    // Theme Switcher
+    const themeBtn = document.getElementById('theme-btn');
+    const htmlEl = document.documentElement;
+    const currentSaved = localStorage.getItem('portfolio-theme') || 'dark';
+    htmlEl.setAttribute('data-theme', currentSaved);
+
+    themeBtn.addEventListener('click', () => {
+      const isDark = htmlEl.getAttribute('data-theme') === 'dark';
+      const target = isDark ? 'light' : 'dark';
+      htmlEl.setAttribute('data-theme', target);
+      localStorage.setItem('portfolio-theme', target);
+    });
+
+    // Hyperparameter Listeners
+    const tempSlider = document.getElementById('temp-slider');
+    const tempVal = document.getElementById('temp-val');
+    tempSlider.addEventListener('input', (e) => tempVal.textContent = e.target.value);
+
+    const tokensSlider = document.getElementById('tokens-slider');
+    const tokensVal = document.getElementById('tokens-val');
+    tokensSlider.addEventListener('input', (e) => tokensVal.textContent = e.target.value);
+
+    // Tone Buttons
+    const toneBtns = document.querySelectorAll('.tone-btn');
+    toneBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        toneBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+
+    // Character Counter
+    const promptInput = document.getElementById('prompt-input');
+    const charCounter = document.getElementById('char-counter');
+    promptInput.addEventListener('input', () => {
+      charCounter.textContent = `${promptInput.value.length} chars`;
+    });
+
+    // Clear Button
+    document.getElementById('clear-btn').addEventListener('click', () => {
+      promptInput.value = '';
+      charCounter.textContent = '0 chars';
+      promptInput.focus();
+    });
+
+    // Preset Template Handlers
+    const templateItems = document.querySelectorAll('.template-item');
+    templateItems.forEach(item => {
+      item.addEventListener('click', () => {
+        const text = item.getAttribute('data-prompt');
+        promptInput.value = text;
+        charCounter.textContent = `${text.length} chars`;
+        triggerGeneration(text);
+      });
+    });
+
+    // Generation Execution
+    const runBtn = document.getElementById('run-btn');
+    const activePromptText = document.getElementById('active-prompt-text');
+    const responseBody = document.getElementById('response-body');
+    const engineStatus = document.getElementById('engine-status');
+    const tokenStat = document.getElementById('token-stat');
+    const latencyStat = document.getElementById('latency-stat');
+
+    function triggerGeneration(prompt) {
+      if (!prompt.trim()) return;
+      activePromptText.textContent = prompt;
+      runBtn.disabled = true;
+      runBtn.innerHTML = '<span>Synthesizing...</span>';
+      engineStatus.textContent = 'Streaming Response...';
+
+      responseBody.innerHTML = `
+        <div style="display:flex; align-items:center; gap:0.5rem; color:var(--accent-cyan); font-family:var(--font-mono); font-size:0.9rem;">
+          <span class="status-dot"></span> Generating contextual analysis and verified code blocks...
+        </div>
+      `;
+
+      const startTime = performance.now();
+
+      // Simulated Response Generator
+      setTimeout(() => {
+        const endTime = performance.now();
+        const latency = ((endTime - startTime) / 1000).toFixed(2);
+        const tokens = Math.floor(Math.random() * 400 + 450);
+
+        tokenStat.textContent = `⚡ ${tokens} Tokens`;
+        latencyStat.textContent = `⏱️ ${latency}s`;
+        engineStatus.textContent = 'Engine Connected (24ms)';
+        runBtn.disabled = false;
+        runBtn.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          <span>Run Generation</span>
+        `;
+
+        responseBody.innerHTML = `
+          <p>Analysis completed for: <em>"${prompt}"</em></p>
+          <br/>
+          <p><strong>Core Technical Insights:</strong></p>
+          <ul style="margin-left: 1.25rem; margin-top: 0.35rem; line-height: 1.8;">
+            <li><strong>Optimized Architecture:</strong> Designed with zero-redundancy algorithmic patterns to maximize memory efficiency.</li>
+            <li><strong>Cross-Platform Scalability:</strong> Seamlessly integrates with modern web frameworks, Python backends, and serverless edge runtimes.</li>
+            <li><strong>Robust Error Boundary:</strong> Includes comprehensive edge-case handling for malformed inputs and asynchronous network stalls.</li>
+          </ul>
+
+          <div class="code-block">
+            <div class="code-header">
+              <span>solution_output.py</span>
+              <button onclick="navigator.clipboard.writeText('Copied output')">Copy</button>
+            </div>
+            <div class="code-content"><span class="syntax-comment"># Generated production logic for prompt execution</span>
+<span class="syntax-kw">def</span> <span class="syntax-fn">execute_solution</span>(context, parameters):
+    <span class="syntax-comment"># Parse incoming telemetry and parameters</span>
+    result = {<span class="syntax-str">"status"</span>: <span class="syntax-str">"success"</span>, <span class="syntax-str">"processed_tokens"</span>: ${tokens}}
+    <span class="syntax-kw">return</span> result</div>
+          </div>
+          <p style="color:var(--text-muted); font-size:0.85rem;">Generated with Claude 3.5 Sonnet pipeline • Ready for deployment.</p>
+        `;
+      }, 850);
+    }
+
+    runBtn.addEventListener('click', () => {
+      triggerGeneration(promptInput.value);
+    });
+
+    // Keyboard Shortcut (Ctrl + Enter)
+    promptInput.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        triggerGeneration(promptInput.value);
+      }
+    });
+
+    // Copy Output
+    document.getElementById('copy-output-btn').addEventListener('click', () => {
+      const text = responseBody.innerText;
+      navigator.clipboard.writeText(text);
+      const btn = document.getElementById('copy-output-btn');
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy Response', 2000);
+    });
+  </script>
+</body>
+</html>
